@@ -29,10 +29,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 // ---------- helpers ----------
 const api = async (path, opts = {}) => {
-  const res = await fetch(`/api/${path}`, { headers: { 'Content-Type': 'application/json' }, ...opts })
-  if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || 'Request failed')
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
+  const res = await fetch(`${baseUrl}/api/${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...opts,
+  })
+
+  if (!res.ok) {
+    throw new Error(
+      (await res.json().catch(() => ({}))).error || 'Request failed'
+    )
+  }
+
   return res.json()
 }
+
 const downloadFile = (name, content, mime = 'application/json') => {
   const blob = new Blob([typeof content === 'string' ? content : JSON.stringify(content, null, 2)], { type: mime })
   const url = URL.createObjectURL(blob)
